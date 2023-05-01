@@ -1,9 +1,9 @@
 package com.tatq
 
 import com.tatq.model.Chat
-import com.tatq.model.From
 import com.tatq.model.TelegramMessage
 import com.tatq.model.TelegramUpdate
+import com.tatq.model.TelegramUser
 import com.tatq.plugins.configureRouting
 import com.tatq.plugins.configureSerialization
 import io.ktor.client.HttpClient
@@ -79,7 +79,7 @@ class KafkaProducerTest : KoinTest {
             TelegramMessage(
                 Chat("John", 0, "Doe", "", "jDoe"),
                 0,
-                From("Jane", 0, "Doe", "jDoe"),
+                TelegramUser("Jane", 0, "Doe", "jDoe"),
                 0,
                 "Hello World",
             ),
@@ -107,7 +107,7 @@ class KafkaProducerTest : KoinTest {
                 TelegramMessage(
                     Chat("John", 0, "Doe", "", "jDoe"),
                     0,
-                    From("Jane", 0, "Doe", "jDoe"),
+                    TelegramUser("Jane", 0, "Doe", "jDoe"),
                     0,
                     "Hello World",
                 ),
