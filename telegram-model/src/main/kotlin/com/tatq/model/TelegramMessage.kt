@@ -17,8 +17,8 @@ data class TelegramMessage(
     val text: String? = "",
     @SerialName("forward_from")
     val forwardFrom: TelegramUser? = null,
-
     // TODO: Parse the long out into an Instant in the ForwardFrom class.
     @SerialName("forward_date")
     val forwardDate: Long? = null,
+    val entities: List<Entity>? = null,
     )
