@@ -11,18 +11,19 @@
 pluginManagement {
     // Include 'plugins build' to define convention plugins.
     includeBuild("build-logic")
+    // TODO: Still not creating dependency-analysis tasks
+//    plugins {
+//        id("com.autonomousapps.dependency-analysis") version "1.19.0"
+//    }
+
 }
 
 plugins {
     kotlin("jvm") version "1.8.10" apply false
-//    id("com.autonomousapps.dependency-analysis") version "1.19.0"
     id("io.ktor.plugin") version "2.3.0" apply false // TODO: Just the ktor module needs this.
-//    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10" apply false
     kotlin("plugin.serialization") version "1.8.21" apply false
     id("org.jmailen.kotlinter") version "3.14.0" apply false
-
 }
 
 rootProject.name = "kafkagram"
 include("telegram-webhook", "telegram-response", "telegram-echo", "telegram-model")
-
