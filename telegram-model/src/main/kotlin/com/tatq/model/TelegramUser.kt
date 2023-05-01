@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class From(
+data class TelegramUser(
     @SerialName("first_name")
     val firstName: String? = "",
     @SerialName("id")

@@ -21,16 +21,6 @@ dependencies {
     }
 }
 
-//testing {
-//    suites {
-//        // Configure the built-in test suite
-//        val test by getting(JvmTestSuite::class) {
-//            // Use JUnit Jupiter test framework
-//            useJUnitJupiter("5.9.1")
-//        }
-//    }
-//}
-
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "18"
 }
