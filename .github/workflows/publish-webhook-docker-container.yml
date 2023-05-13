@@ -24,4 +24,4 @@ jobs:
         env:
           DOCKER_IMAGE_NAME: telegram-webhook
         run: |
-          creator -app=telegram-webhook/ bthode/telegram-webhook:latest
+          /cnb/lifecycle/creator -app=telegram-webhook/ bthode/telegram-webhook:latest
