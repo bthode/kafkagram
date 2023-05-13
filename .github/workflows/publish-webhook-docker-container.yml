@@ -24,4 +24,4 @@ jobs:
         env:
           DOCKER_IMAGE_NAME: telegram-webhook
         run: |
-          pack build "${DOCKER_IMAGE_NAME}" --path telegram-webhook --publish docker.io/"${DOCKER_IMAGE_NAME}"
+          creator -app=telegram-webhook/ bthode/telegram-webhook:latest
