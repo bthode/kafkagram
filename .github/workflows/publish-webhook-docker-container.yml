@@ -17,16 +17,16 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Install pack CLI via the official buildpack Action https://github.com/buildpacks/github-actions#setup-pack-cli-action
-        uses: buildpacks/github-actions/setup-pack@v4.9.1
-
-      - name: Install Creator
-        run: |
-          curl -sSL https://github.com/buildpacks/lifecycle/releases/download/v0.16.3/lifecycle-v0.16.3+linux.x86-64.tgz | tar xzf - -C /usr/local/bin --strip-components=1 lifecycle/
-          chmod +x /usr/local/bin/creator
+      - name: Set up pack CLI
+        uses: paketobuildpacks/builder
+        with:
+          version: "latest"
 
       - name: Build and publish Docker image with pack
         env:
           DOCKER_IMAGE_NAME: telegram-webhook
         run: |
-          creator -app=telegram-webhook/ bthode/telegram-webhook:latest
+          pack build bthode/telegram-webhook --builder cnb-builder \
+          --registry https://index.docker.io/v1/ \
+          --docker-username ${{ secrets.DOCKERHUB_USERNAME }} \
+          --docker-password ${{ secrets.DOCKERHUB_TOKEN }}
