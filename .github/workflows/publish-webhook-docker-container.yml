@@ -20,8 +20,13 @@ jobs:
       - name: Install pack CLI via the official buildpack Action https://github.com/buildpacks/github-actions#setup-pack-cli-action
         uses: buildpacks/github-actions/setup-pack@v4.9.1
 
+      - name: Install Creator
+        run: |
+          curl -sSL https://github.com/buildpacks/lifecycle/releases/download/v0.16.3/lifecycle-v0.16.3+linux.x86-64.tgz | tar xzf - -C /usr/local/bin --strip-components=1 lifecycle/
+          chmod +x /usr/local/bin/creator
+
       - name: Build and publish Docker image with pack
         env:
           DOCKER_IMAGE_NAME: telegram-webhook
         run: |
-          /cnb/lifecycle/creator -app=telegram-webhook/ bthode/telegram-webhook:latest
+          creator -app=telegram-webhook/ bthode/telegram-webhook:latest
