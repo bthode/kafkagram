@@ -2,11 +2,9 @@ on:
   push:
     branches:
       - master
-
 jobs:
-  build-and-publish:
+  build-with-paketo-push-to-dockerhub:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
 
@@ -20,13 +18,9 @@ jobs:
       - name: Install pack CLI via the official buildpack Action https://github.com/buildpacks/github-actions#setup-pack-cli-action
         uses: buildpacks/github-actions/setup-pack@v4.9.1
 
-      - name: Install Creator
+      - name: Build app with pack CLI using Buildpack Cache image (see https://buildpacks.io/docs/app-developer-guide/using-cache-image/) & publish to Docker Hub
         run: |
-          curl -sSL https://github.com/buildpacks/lifecycle/releases/download/v0.16.3/lifecycle-v0.16.3+linux.x86-64.tgz | tar xzf - -C /usr/local/bin --strip-components=1 lifecycle/
-          chmod +x /usr/local/bin/creator
-
-      - name: Build and publish Docker image with pack
-        env:
-          DOCKER_IMAGE_NAME: telegram-webhook
-        run: |
-          creator -app=telegram-webhook/ bthode/telegram-webhook:latest
+              pack build bthode/telegram-webhook:latest \
+              --builder paketobuildpacks/builder:base \
+              --path telegram-webhook/
+              --publish
