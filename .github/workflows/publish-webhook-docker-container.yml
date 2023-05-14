@@ -5,7 +5,8 @@ on:
 jobs:
   build-with-paketo-push-to-dockerhub:
     runs-on: ubuntu-latest
-    BP_GRADLE_BUILT_ARTIFACT: telegram-webhook/build/libs/*.jar
+    env:
+      BP_GRADLE_BUILT_ARTIFACT: telegram-webhook/build/libs/*.jar
     steps:
       - uses: actions/checkout@v2
 
