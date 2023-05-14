@@ -5,8 +5,6 @@ on:
 jobs:
   build-with-paketo-push-to-dockerhub:
     runs-on: ubuntu-latest
-    env:
-      BP_GRADLE_BUILT_ARTIFACT: telegram-webhook/build/libs/*.jar
     steps:
       - uses: actions/checkout@v2
 
@@ -20,7 +18,9 @@ jobs:
       - name: Install pack CLI via the official buildpack Action https://github.com/buildpacks/github-actions#setup-pack-cli-action
         uses: buildpacks/github-actions/setup-pack@v4.9.1
 
-      - name: Build app with pack CLI using Buildpack Cache image (see https://buildpacks.io/docs/app-developer-guide/using-cache-image/) & publish to Docker Hub
+      - name: Build app with pack CLI using Buildpack
+        env:
+          BP_GRADLE_BUILT_ARTIFACT: telegram-webhook/build/libs/*.jar
         run: |
           pack build bthode/telegram-webhook:latest \
           --builder paketobuildpacks/builder:base \
