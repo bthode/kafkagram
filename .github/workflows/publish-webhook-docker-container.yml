@@ -18,11 +18,15 @@ jobs:
       - name: Install pack CLI via the official buildpack Action https://github.com/buildpacks/github-actions#setup-pack-cli-action
         uses: buildpacks/github-actions/setup-pack@v4.9.1
 
+      - name: Set BP_GRADLE_BUILT_ARTIFACT
+        run: echo "BP_GRADLE_BUILT_ARTIFACT=telegram-webhook/build/libs/*.jar " >> $GITHUB_ENV
+
       - name: Build app with pack CLI using Buildpack
         env:
           BP_GRADLE_BUILT_ARTIFACT: telegram-webhook/build/libs/*.jar
         run: |
           pack build bthode/telegram-webhook:latest \
           --builder paketobuildpacks/builder:base \
-          --path .
+          --path . \
+          --env BP_GRADLE_BUILT_ARTIFACT=$BP_GRADLE_BUILT_ARTIFACT \
           --publish
