@@ -20,7 +20,7 @@ jobs:
 
       - name: Build app with pack CLI using Buildpack Cache image (see https://buildpacks.io/docs/app-developer-guide/using-cache-image/) & publish to Docker Hub
         run: |
-              pack build bthode/telegram-webhook:latest \
-              --builder paketobuildpacks/builder:base \
-              --path telegram-webhook/
-              --publish
+          pack build bthode/telegram-webhook:latest \
+          --builder paketobuildpacks/builder:base \
+          --path telegram-webhook/
+          --publish
