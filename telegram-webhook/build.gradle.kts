@@ -60,6 +60,7 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:5.2.0")
     implementation(project(":telegram-model"))
     testImplementation(project(":telegram-model"))
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 }
 
 
