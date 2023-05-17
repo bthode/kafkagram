@@ -2,6 +2,6 @@ package com.tatq.consumer
 
 import org.apache.kafka.clients.consumer.Consumer
 
-interface IProduceConsumer {
+interface ICreateKafkaConsumer {
     fun createConsumer(bootstrapServersConfig: String): Consumer<String, String>
 }

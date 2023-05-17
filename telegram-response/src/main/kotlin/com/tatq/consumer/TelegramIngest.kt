@@ -30,7 +30,6 @@ class TelegramIngest(
     httpEngine: HttpClientEngine,
     private val telegramBotSecret: String,
     private val producerConsumer: Consumer<String, String>,
-    val listenTopic: String,
 ) : Closeable {
     private lateinit var sendMessageEndpoint: String
     private val httpClient = HttpClient(httpEngine)

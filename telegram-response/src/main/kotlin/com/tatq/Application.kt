@@ -1,6 +1,6 @@
 package com.tatq
 
-import com.tatq.consumer.ProduceConsumer
+import com.tatq.consumer.CreateKafkaConsumer
 import com.tatq.consumer.TelegramIngest
 import com.tatq.plugins.configureHTTP
 import com.tatq.plugins.configureSerialization
@@ -30,8 +30,8 @@ fun Application.module() {
     val telegramIngest = TelegramIngest(
         httpEngine = HttpClient(engineFactory = CIO).engine,
         telegramBotSecret = telegramBotSecret,
-        producerConsumer = ProduceConsumer().createConsumer(bootstrapServersConfig),
-        listenTopic = listenTopic,
+        producerConsumer = CreateKafkaConsumer().createConsumer(bootstrapServersConfig),
+        // TODO: We're not setting the listen topic in the real consumer
     )
 
     environment.monitor.subscribe(ApplicationStarted) {

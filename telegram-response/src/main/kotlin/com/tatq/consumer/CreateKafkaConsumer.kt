@@ -6,7 +6,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import java.util.*
 
-class ProduceConsumer : IProduceConsumer {
+class CreateKafkaConsumer : ICreateKafkaConsumer {
     override fun createConsumer(bootstrapServersConfig: String): Consumer<String, String> {
         val props = Properties()
         with(props) {
