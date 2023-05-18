@@ -1,5 +1,7 @@
 package com.tatq.consumer
 
+import AppConfig.SEND_MESSAGE_ENDPOINT
+import AppConfig.TELEGRAM_API
 import com.tatq.model.OutgoingMessage
 import com.tatq.model.TelegramResponse
 import io.ktor.client.HttpClient
@@ -24,9 +26,6 @@ import java.io.Closeable
 import java.time.Duration
 import java.util.Collections.singleton
 
-private const val TELEGRAM_API = "https://api.telegram.org/"
-private const val SEND_MESSAGE = "/sendMessage"
-
 class TelegramIngest(
     httpEngine: HttpClientEngine,
     telegramBotSecret: String,
@@ -37,7 +36,7 @@ class TelegramIngest(
 
     init {
         val botPrefix = "bot"
-        sendMessageEndpoint = "$TELEGRAM_API$botPrefix$telegramBotSecret$SEND_MESSAGE".replace(
+        sendMessageEndpoint = "$TELEGRAM_API$botPrefix$telegramBotSecret$SEND_MESSAGE_ENDPOINT".replace(
             "[\n\r]".toRegex(),
             "",
         ) // TODO: Why is our k8 secret including a newline?
@@ -56,7 +55,7 @@ class TelegramIngest(
                         val json = record.value()
                         val data = Json.decodeFromString<OutgoingMessage>(json)
                         runBlocking {
-                            sendMessageToTelegramBot(data)
+                            sendMessageToTelegram(data)
                         }
                     }
                 } catch (e: Exception) {
@@ -68,12 +67,12 @@ class TelegramIngest(
             }
         }
 
-    private suspend fun sendMessageToTelegramBot(data: OutgoingMessage): Boolean {
-        val dataToSend = Json.encodeToString(data)
+    private suspend fun sendMessageToTelegram(outgoingMessage: OutgoingMessage): Boolean {
+        val dataToSend = Json.encodeToString(outgoingMessage)
 
         val response = httpClient.post(sendMessageEndpoint) {
             headers {
-                append(HttpHeaders.ContentType, "application/json")
+                append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             }
             contentType(ContentType.Application.Json)
             setBody(dataToSend)

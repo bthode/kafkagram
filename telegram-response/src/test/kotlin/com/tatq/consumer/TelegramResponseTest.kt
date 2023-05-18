@@ -1,5 +1,8 @@
 package com.tatq.consumer
 
+import AppConfig.BOT_PREFIX
+import AppConfig.SEND_MESSAGE_ENDPOINT
+import AppConfig.TELEGRAM_API
 import com.tatq.model.OutgoingMessage
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -47,12 +50,8 @@ class TelegramResponseTest {
     }
         """.trimIndent()
 
-        // TODO: Should centralize this data
-        val telegramAPI = "https://api.telegram.org/"
-        val botPrefix = "bot"
-        val sendMessage = "/sendMessage"
         val telegramBotSecret = "value"
-        val sendMessageEndpoint = "$telegramAPI$botPrefix$telegramBotSecret$sendMessage"
+        val sendMessageEndpoint = "$TELEGRAM_API$BOT_PREFIX$telegramBotSecret$SEND_MESSAGE_ENDPOINT"
 
         val mockEngine = MockEngine { request ->
             if (request.url.toString() == sendMessageEndpoint) {
@@ -62,14 +61,14 @@ class TelegramResponseTest {
                     headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 )
             } else {
-                error("Unhandled ${request.url.encodedPath}")
+                error("Unhandled ${request.url}")
             }
         }
 
         val listenTopic = "listen-topic"
         val consumer = CreateKafkaMockConsumer().createConsumer("bootstrap.server") as MockConsumer<String, String>
 
-        val startOffsets: HashMap<TopicPartition, Long> = HashMap<TopicPartition, Long>()
+        val startOffsets: HashMap<TopicPartition, Long> = HashMap()
         val topicPartition = TopicPartition(listenTopic, 0)
         startOffsets[topicPartition] = 0L
         consumer.updateBeginningOffsets(startOffsets)
@@ -80,7 +79,7 @@ class TelegramResponseTest {
             producerConsumer = consumer,
         )
 
-        // With the MockConsumer, partition assignment is not handled by the Kafka cluster. So we have to manually assign them.
+        // With the MockConsumer, partition assignment is not handled by the Kafka cluster. So we have to manually assign it.
         consumer.assign(singleton(topicPartition))
 
         val incomingMessageJson = Json.encodeToString(OutgoingMessage("12345", "Hello World!"))
@@ -99,18 +98,22 @@ class TelegramResponseTest {
         assertEquals(
             expected = 1,
             mockEngine.requestHistory.size,
-            message = "No request made to the correct endpoint as specified in the MockEngine",
+            "No request was made to the expected endpoint as specified in the MockEngine",
         )
-        assertEquals(expected = 1, mockEngine.responseHistory.size, message = "No response from the MockEngine")
+        assertEquals(
+            expected = 1,
+            mockEngine.responseHistory.size,
+            "No response from the MockEngine",
+        )
         assertEquals(
             expected = sendMessageEndpoint,
             actual = mockEngine.requestHistory.first().url.toString(),
-            message = "Didn't send a request to the correct endpoint",
+            "Didn't send a request to the correct endpoint",
         )
         assertEquals(
             expected = HttpStatusCode.OK,
             actual = mockEngine.responseHistory.first().statusCode,
-            message = "Didn't get back  ${HttpStatusCode.OK}",
+            "Didn't get back ${HttpStatusCode.OK}",
         )
         mockEngine.close()
     }
