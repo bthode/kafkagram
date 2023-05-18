@@ -15,7 +15,6 @@ import io.ktor.http.contentType
 import io.ktor.http.headers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -50,13 +49,11 @@ class TelegramIngest(
         coroutineScope {
             while (isActive) {
                 try {
-                    val records = producerConsumer.poll(Duration.ofMillis(5000))
+                    val records = producerConsumer.poll(Duration.ofSeconds(2))
                     for (record: ConsumerRecord<String, String> in records) {
                         val json = record.value()
                         val data = Json.decodeFromString<OutgoingMessage>(json)
-                        runBlocking {
-                            sendMessageToTelegram(data)
-                        }
+                        sendMessageToTelegram(data)
                     }
                 } catch (e: Exception) {
                     println("Error occurred: ${e.message}")
