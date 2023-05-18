@@ -1,8 +1,4 @@
-val ktor_version: String by project
-val kotlin_version: String by project
-val logback_version: String by project
 val kotlinxSerializationVersion: String by project
-val slf4j: String by project
 
 plugins {
     kotlin("jvm")
@@ -24,14 +20,9 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("org.apache.kafka:kafka-clients:3.4.0")
     implementation("org.apache.kafka:kafka-streams:3.4.0")
-    implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.slf4j:slf4j-api:$slf4j")
-    implementation("org.slf4j:slf4j-log4j12:$slf4j")
     implementation(project(":telegram-model"))
-    api(project(":telegram-model"))
-    testImplementation(project(":telegram-model"))
 }

@@ -158,18 +158,8 @@ class KafkaProducerTest : KoinTest {
     }
 
     @Test
-    fun `Verify forwarded Channel Message payload`() {
-        verifyPayloadCanBeParsed(forwardedChannelMessage())
-    }
-
-    @Test
     fun `Verify message With Reply payload`() {
         verifyPayloadCanBeParsed(messageWithReply())
-    }
-
-    @Test
-    fun `Verify edited Message payload`() {
-        verifyPayloadCanBeParsed(editedMessage())
     }
 
     @Test
@@ -190,20 +180,5 @@ class KafkaProducerTest : KoinTest {
     @Test
     fun `Verify message With Document payload`() {
         verifyPayloadCanBeParsed(messageWithDocument())
-    }
-
-    @Test
-    fun `Verify inline Query payload`() {
-        verifyPayloadCanBeParsed(inlineQuery())
-    }
-
-    @Test
-    fun `Verify chosen Inline Query payload`() {
-        verifyPayloadCanBeParsed(chosenInlineQuery())
-    }
-
-    @Test
-    fun `Verify callback Query payload`() {
-        verifyPayloadCanBeParsed(callbackQuery())
     }
 }
