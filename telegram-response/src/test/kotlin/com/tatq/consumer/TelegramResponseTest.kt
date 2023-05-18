@@ -1,74 +1,30 @@
 package com.tatq.consumer
 
 import com.tatq.model.OutgoingMessage
-import com.tatq.plugins.configureSerialization
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import io.ktor.http.headersOf
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.testing.ApplicationTestBuilder
-import io.ktor.server.testing.testApplication
 import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.common.TopicPartition
-import java.util.*
 import java.util.Collections.singleton
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private const val ENDPOINT = "/telegram"
-
 class TelegramResponseTest {
-    private lateinit var customClient: HttpClient
-
-    private fun testApplicationWrapper(testBlock: suspend ApplicationTestBuilder.() -> Unit) {
-        testApplication {
-            application {
-                configureSerialization()
-            }
-            createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }.also { customClient = it }
-            testBlock()
-        }
-    }
 
     @Test
-    fun testPostRequest() = testApplicationWrapper {
-        customClient.post(ENDPOINT) {
-            contentType(ContentType.Application.Json)
-            header(
-                HttpHeaders.ContentType,
-                ContentType.Application.Json,
-            )
-
-            val telegramUpdate = OutgoingMessage("asdf", "asdf")
-            setBody(telegramUpdate)
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status)
-        }
-    }
-
-    @Test
-    fun sampleClientTest() {
-        runBlocking {
-            val json = """
+    fun `Verify Kafka message on the correct topic results in a request to the Telegram server`() {
+        val json = """
     {
       "ok": true,
       "result": {
@@ -89,54 +45,72 @@ class TelegramResponseTest {
         "text": "Hello from Bot!"
       }
     }
-            """.trimIndent()
+        """.trimIndent()
 
+        // TODO: Should centralize this data
+        val telegramAPI = "https://api.telegram.org/"
+        val botPrefix = "bot"
+        val sendMessage = "/sendMessage"
+        val telegramBotSecret = "value"
+        val sendMessageEndpoint = "$telegramAPI$botPrefix$telegramBotSecret$sendMessage"
 
-            val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine { request ->
+            if (request.url.toString() == sendMessageEndpoint) {
                 respond(
                     content = ByteReadChannel(json),
-//                    status = HttpStatusCode.OK,
-                    status = HttpStatusCode.BadRequest,
-                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 )
+            } else {
+                error("Unhandled ${request.url.encodedPath}")
             }
-
-            val listenTopic = "listen-topic"
-            val consumer = CreateKafkaMockConsumer().createConsumer("bootstrap.server") as MockConsumer<String, String>
-
-            val startOffsets: HashMap<TopicPartition, Long> = HashMap<TopicPartition, Long>()
-            val topicPartition = TopicPartition(listenTopic, 0)
-            startOffsets[topicPartition] = 0L
-            consumer.updateBeginningOffsets(startOffsets)
-
-            val telegramBotSecret = "value"
-            val telegramIngest = TelegramIngest(
-                httpEngine = mockEngine,
-                telegramBotSecret = telegramBotSecret,
-                producerConsumer = consumer,
-            )
-
-            consumer.assign(singleton(topicPartition)) // TODO This has to be set in product code as well.
-
-            val incomingMessageJson = Json.encodeToString(OutgoingMessage("12345", "Hello World!"))
-            val consumerRecord = ConsumerRecord<String, String>(listenTopic, 0, 0L, null, incomingMessageJson)
-            consumer.addRecord(consumerRecord)
-
-            telegramIngest.consume()
-            Thread.sleep(6000)
         }
+
+        val listenTopic = "listen-topic"
+        val consumer = CreateKafkaMockConsumer().createConsumer("bootstrap.server") as MockConsumer<String, String>
+
+        val startOffsets: HashMap<TopicPartition, Long> = HashMap<TopicPartition, Long>()
+        val topicPartition = TopicPartition(listenTopic, 0)
+        startOffsets[topicPartition] = 0L
+        consumer.updateBeginningOffsets(startOffsets)
+
+        val telegramIngest = TelegramIngest(
+            httpEngine = mockEngine,
+            telegramBotSecret = telegramBotSecret,
+            producerConsumer = consumer,
+        )
+
+        consumer.assign(singleton(topicPartition)) // TODO This has to be set in product code as well.
+
+        val incomingMessageJson = Json.encodeToString(OutgoingMessage("12345", "Hello World!"))
+        val consumerRecord = ConsumerRecord<String, String>(listenTopic, 0, 0L, null, incomingMessageJson)
+        consumer.addRecord(consumerRecord)
+
+        runBlocking {
+            val job = launch {
+                telegramIngest.consume()
+            }
+            delay(100) // any non-zero value works locally
+            job.cancel()
+            job.join()
+        }
+
+        assertEquals(
+            expected = 1,
+            mockEngine.requestHistory.size,
+            message = "No request made to the correct endpoint as specified in the MockEngine",
+        )
+        assertEquals(expected = 1, mockEngine.responseHistory.size, message = "No response from the MockEngine")
+        assertEquals(
+            expected = sendMessageEndpoint,
+            actual = mockEngine.requestHistory.first().url.toString(),
+            message = "Didn't send a request to the correct endpoint",
+        )
+        assertEquals(
+            expected = HttpStatusCode.OK,
+            actual = mockEngine.responseHistory.first().statusCode,
+            message = "Didn't get back  ${HttpStatusCode.OK}",
+        )
+        mockEngine.close()
     }
-
-//    class ApiClient(engine: HttpClientEngine) {
-//        private val httpClient = HttpClient(engine) {
-//            install(ContentNegotiation) {
-//                json()
-//            }
-//        }
-//
-//        suspend fun getIp(): IpResponse = httpClient.get("https://api.ipify.org/?format=json").body()
-//    }
-
-//    @Serializable
-//    data class IpResponse(val ip: String)
 }

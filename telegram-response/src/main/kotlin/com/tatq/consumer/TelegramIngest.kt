@@ -11,10 +11,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.headers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -28,39 +29,43 @@ private const val SEND_MESSAGE = "/sendMessage"
 
 class TelegramIngest(
     httpEngine: HttpClientEngine,
-    private val telegramBotSecret: String,
+    telegramBotSecret: String,
     private val producerConsumer: Consumer<String, String>,
 ) : Closeable {
-    private lateinit var sendMessageEndpoint: String
+    private var sendMessageEndpoint: String
     private val httpClient = HttpClient(httpEngine)
-    val myScope = CoroutineScope(Dispatchers.Default)
     private lateinit var myJob: Job
 
-    suspend fun consume() {
+    init {
         val botPrefix = "bot"
-        sendMessageEndpoint = "$TELEGRAM_API$botPrefix$telegramBotSecret$SEND_MESSAGE".replace("[\n\r]".toRegex(), "") // TODO: Why is our k8 secret including a newline?
+        sendMessageEndpoint = "$TELEGRAM_API$botPrefix$telegramBotSecret$SEND_MESSAGE".replace(
+            "[\n\r]".toRegex(),
+            "",
+        ) // TODO: Why is our k8 secret including a newline?
+    }
 
-        myJob = myScope.launch {
-            while (true) { // TODO: Test is just sitting in this while loop forever.
+    suspend fun consume() =
+        coroutineScope {
+            while (isActive) {
                 try {
                     val records = producerConsumer.poll(Duration.ofMillis(5000))
                     for (record: ConsumerRecord<String, String> in records) {
                         val json = record.value()
                         val data = Json.decodeFromString<OutgoingMessage>(json)
-                        sendMessageToTelegramBot(data)
+                        runBlocking {
+                            sendMessageToTelegramBot(data)
+                        }
                     }
                 } catch (e: Exception) {
                     println("Error occurred: ${e.message}")
+                } finally {
+                    producerConsumer.close()
                 }
+                yield()
             }
         }
-    }
 
-    fun abort() {
-        myJob.cancel()
-    }
-
-    suspend fun sendMessageToTelegramBot(data: OutgoingMessage): Boolean {
+    private suspend fun sendMessageToTelegramBot(data: OutgoingMessage): Boolean {
         val dataToSend = Json.encodeToString(data)
 
         val response = httpClient.post(sendMessageEndpoint) {
