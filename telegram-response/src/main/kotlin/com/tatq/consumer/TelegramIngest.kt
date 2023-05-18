@@ -11,7 +11,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.headers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
@@ -34,7 +33,6 @@ class TelegramIngest(
 ) : Closeable {
     private var sendMessageEndpoint: String
     private val httpClient = HttpClient(httpEngine)
-    private lateinit var myJob: Job
 
     init {
         val botPrefix = "bot"
