@@ -80,7 +80,8 @@ class TelegramResponseTest {
             producerConsumer = consumer,
         )
 
-        consumer.assign(singleton(topicPartition)) // TODO This has to be set in product code as well.
+        // With the MockConsumer, partition assignment is not handled by the Kafka cluster. So we have to manually assign them.
+        consumer.assign(singleton(topicPartition))
 
         val incomingMessageJson = Json.encodeToString(OutgoingMessage("12345", "Hello World!"))
         val consumerRecord = ConsumerRecord<String, String>(listenTopic, 0, 0L, null, incomingMessageJson)

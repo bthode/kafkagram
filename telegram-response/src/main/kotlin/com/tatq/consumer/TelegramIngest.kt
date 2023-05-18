@@ -22,6 +22,7 @@ import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import java.io.Closeable
 import java.time.Duration
+import java.util.Collections.singleton
 
 private const val TELEGRAM_API = "https://api.telegram.org/"
 private const val SEND_MESSAGE = "/sendMessage"
@@ -40,6 +41,10 @@ class TelegramIngest(
             "[\n\r]".toRegex(),
             "",
         ) // TODO: Why is our k8 secret including a newline?
+    }
+
+    fun subscribeToTopic(topic: String) {
+        producerConsumer.subscribe(singleton(topic))
     }
 
     suspend fun consume() =

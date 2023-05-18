@@ -31,11 +31,11 @@ fun Application.module() {
         httpEngine = HttpClient(engineFactory = CIO).engine,
         telegramBotSecret = telegramBotSecret,
         producerConsumer = CreateKafkaConsumer().createConsumer(bootstrapServersConfig),
-        // TODO: We're not setting the listen topic in the real consumer
     )
 
     environment.monitor.subscribe(ApplicationStarted) {
         runBlocking {
+            telegramIngest.subscribeToTopic(listenTopic)
             telegramIngest.consume()
         }
     }
