@@ -42,11 +42,13 @@ class TelegramIngest(
     }
 
     fun subscribeToTopic(topic: String) {
+        println("Subscribing to topic $topic")
         producerConsumer.subscribe(singleton(topic))
     }
 
     suspend fun consume() =
         coroutineScope {
+            println("Starting polling for Kafka messages.")
             while (isActive) {
                 try {
                     val records = producerConsumer.poll(Duration.ofSeconds(2))
@@ -57,8 +59,6 @@ class TelegramIngest(
                     }
                 } catch (e: Exception) {
                     println("Error occurred: ${e.message}")
-                } finally {
-                    producerConsumer.close()
                 }
                 yield()
             }
@@ -80,6 +80,7 @@ class TelegramIngest(
     }
 
     override fun close() {
+        println("Closing Kafka consumer.")
         producerConsumer.close()
     }
 }
