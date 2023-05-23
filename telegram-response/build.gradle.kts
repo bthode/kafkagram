@@ -39,7 +39,7 @@ dependencies {
     implementation("io.ktor:ktor-utils")
     implementation("org.apache.kafka:kafka-clients:3.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation(project(":telegram-model"))
     runtimeOnly("ch.qos.logback:logback-classic:$logback_version")
