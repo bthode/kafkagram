@@ -43,7 +43,7 @@ dependencies {
     implementation("org.apache.kafka:kafka-clients:3.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation("org.slf4j:slf4j-api:2.0.7")
     implementation(project(":telegram-model"))
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
     testImplementation("io.insert-koin:koin-test:$koinVersion")
