@@ -39,6 +39,7 @@ jobs:
           --builder paketobuildpacks/builder:base \
           --path . \
           --env BP_GRADLE_BUILT_ARTIFACT=$BP_GRADLE_BUILT_ARTIFACT \
+          -- cache-dir /home/cnb/.gradle \
           --publish
 
       - name: Build telegram-response with pack CLI using Buildpack
@@ -49,4 +50,5 @@ jobs:
           --builder paketobuildpacks/builder:base \
           --path . \
           --env BP_GRADLE_BUILT_ARTIFACT=$BP_GRADLE_BUILT_ARTIFACT \
+          -- cache-dir /home/cnb/.gradle \
           --publish
