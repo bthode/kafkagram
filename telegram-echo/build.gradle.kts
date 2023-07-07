@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.kafka:kafka-clients:3.4.1")
+    implementation("org.apache.kafka:kafka-clients:3.5.0")
     implementation("org.apache.kafka:kafka-streams:3.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
