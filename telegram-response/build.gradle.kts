@@ -43,7 +43,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation(project(":telegram-model"))
     runtimeOnly("ch.qos.logback:logback-classic:$logback_version")
-    testImplementation("io.kotest:kotest-runner-junit5:5.6.2")
+    testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
     testImplementation("io.ktor:ktor-client-core")
     testImplementation("io.ktor:ktor-client-mock")
     testImplementation("io.ktor:ktor-io")

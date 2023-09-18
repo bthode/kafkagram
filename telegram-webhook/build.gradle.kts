@@ -47,7 +47,7 @@ dependencies {
     implementation(project(":telegram-model"))
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
     testImplementation("io.insert-koin:koin-test:$koinVersion")
-    testImplementation("io.kotest:kotest-runner-junit5:5.6.2")
+    testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
     testImplementation("io.ktor:ktor-client-content-negotiation")
     testImplementation("io.ktor:ktor-client-core")
     testImplementation("io.ktor:ktor-server-test-host")
