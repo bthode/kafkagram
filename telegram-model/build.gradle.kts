@@ -3,5 +3,5 @@ plugins {
     kotlin("plugin.serialization")
 }
 dependencies {
-    api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.0")
 }
