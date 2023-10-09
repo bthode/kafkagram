@@ -1,3 +1,3 @@
 plugins {
-    id("com.autonomousapps.dependency-analysis") version "1.20.0"
+    id("com.autonomousapps.dependency-analysis") version "1.25.0"
 }
