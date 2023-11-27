@@ -52,6 +52,6 @@ dependencies {
     testImplementation("io.ktor:ktor-client-core")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.21")
     testImplementation("org.mockito:mockito-inline:5.2.0")
 }
